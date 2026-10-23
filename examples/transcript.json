@@ -1,0 +1,25 @@
+{
+  "channel": "salmon85",
+  "title": "#salmon85",
+  "subtitle": "an example transcript",
+  "messages": [
+    {
+      "login": "salmon85",
+      "display_name": "Salmon85",
+      "text": "how do I give my friend a comic character?",
+      "color": "#00ADFF"
+    },
+    {
+      "login": "pixelpete",
+      "display_name": "PixelPete",
+      "text": "put the png in avatars/ and then type !setavatar pixelpete mypicture",
+      "color": "#D64257"
+    },
+    {
+      "login": "mod_mira",
+      "display_name": "Mira",
+      "text": "and the bot will use it in every panel from now on.",
+      "color": "#7ABD00"
+    }
+  ]
+}

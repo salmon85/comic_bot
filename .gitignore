@@ -1,0 +1,13 @@
+/target
+/data
+/dataa
+/linux
+/windows
+/avatars/*
+/backgrounds/*
+# Contains the OAuth client secret and the stored token
+/comicbot.toml
+/prepare.sh
+/*.exe
+/*.zip
+.DS_Store

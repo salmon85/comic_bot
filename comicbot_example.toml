@@ -1,0 +1,84 @@
+channel = "9rjp6" # Change to the channel you want
+bot_name = "" # Twitch login of the bot account; leave empty to use the logged-in account. Twitch requires this to match the token.
+client_id = "poopface" # The client id from the bot https://dev.twitch.tv/console/apps
+client_secret = "poopface_secret" # The secret for the bot https://dev.twitch.tv/console/apps
+redirect_uri = "http://localhost:3000" # The redirect url for the bot, http://localhost:3000 can be used for local testing https://dev.twitch.tv/console/apps
+
+# Only change if you are using different folders
+data_dir = "data"
+avatars_dir = "avatars"
+backgrounds_dir = "backgrounds"
+
+
+# Current set background
+background = "backgrounds/ocean6.png"
+
+
+# mod only avatars
+mod_avatars = [
+    "salmon",
+    "egg",
+    "gort",
+    "aurjpi",
+    "malithes",
+    "winston",
+    "winston2",
+]
+render_mode = "each"
+
+# Storage location for saved avatar assignments
+[avatars]
+
+
+# Settings for the comic such as size, side bar, etc
+[comic]
+width = 1200
+columns = 3
+rows = 2
+sidebar_width = 210
+show_sidebar = false
+avatar_size = 32
+font_size = 17.0
+name_font_size = 16.0
+cell_window_secs = 3.0
+min_interval_secs = 1
+transparent_background = false
+show_header = true
+comic_style = true
+
+
+# Local web server settings used for redirect when authing
+[http]
+host = "127.0.0.1"
+port = 3000
+
+
+# Irc settings
+[irc]
+server = "irc.chat.twitch.tv"
+port = 6697
+send_delay_ms = 1200
+request_membership = false
+
+[fonts]
+# All three settings are optional. Leave a value out (or commented) and
+# comicbot searches the usual system font locations automatically.
+#
+# regular = message text inside the speech bubbles
+# bold    = speaker names, caption boxes and the CHARACTERS sidebar heading
+# comic   = optional title font for the page header; if unset, comicbot tries
+#           Comic Sans/Comic Neue and falls back to the bold font
+#
+# Paths may be relative to this config file or absolute. Any TrueType/OpenType
+# font that the renderer can parse works. Font sizes are configured in [comic]
+# with font_size and name_font_size.
+#
+# Windows examples (single quotes avoid escaping the backslashes):
+# regular = 'C:\Windows\Fonts\arial.ttf'
+# bold = 'C:\Windows\Fonts\arialbd.ttf'
+# comic = 'C:\Windows\Fonts\comicbd.ttf'
+#
+# Linux examples:
+# regular = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+# bold = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+# comic = "/usr/share/fonts/truetype/comic-neue/ComicNeue-Bold.otf"
