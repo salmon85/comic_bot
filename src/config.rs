@@ -48,6 +48,10 @@ pub struct ComicConfig {
     pub name_font_size: f32,
     /// How long a cell collects messages, in seconds.
     pub cell_window_secs: f32,
+    /// Maximum number of distinct chatters displayed in one cell.
+    pub max_chatters_per_cell: usize,
+    /// Maximum number of characters shown per message (cut off with `...`).
+    pub max_message_chars: usize,
     /// Minimum number of seconds between two automatic renders.
     pub min_interval_secs: u64,
     /// Draw the comic on a transparent background (for overlays).
@@ -70,6 +74,8 @@ impl Default for ComicConfig {
             font_size: 17.0,
             name_font_size: 16.0,
             cell_window_secs: 1.0,
+            max_chatters_per_cell: 4,
+            max_message_chars: 200,
             min_interval_secs: 1,
             transparent_background: false,
             show_header: true,

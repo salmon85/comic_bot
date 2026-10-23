@@ -83,10 +83,31 @@ impl BotState {
     }
 
     /// Add one message to the rolling window of cells.
-    fn push_message(&mut self, message: ComicMessage, window_ms: i64, max_cells: usize) {
+    fn push_message(
+        &mut self,
+        message: ComicMessage,
+        window_ms: i64,
+        max_cells: usize,
+        max_chatters: usize,
+    ) {
+        let max_chatters = max_chatters.max(1);
         let starts_new_cell = self.cells.back().map_or(true, |cell| {
-            message.timestamp_ms < cell.first_time_ms
+            if message.timestamp_ms < cell.first_time_ms
                 || message.timestamp_ms.saturating_sub(cell.first_time_ms) >= window_ms
+            {
+                return true;
+            }
+            // A cell may hold several messages from the same chatter, but only
+            // `max_chatters` different speakers.
+            if cell.messages.iter().any(|known| known.user_id == message.user_id) {
+                return false;
+            }
+            let speakers: HashSet<&str> = cell
+                .messages
+                .iter()
+                .map(|known| known.user_id.as_str())
+                .collect();
+            speakers.len() >= max_chatters
         });
         if starts_new_cell {
             self.cells.push_back(Cell {
@@ -515,7 +536,8 @@ impl Bot {
             if !is_command {
                 let window_ms = self.config.comic.cell_window_ms();
                 let max_cells = self.config.comic.max_cells();
-                state.push_message(comic_message, window_ms, max_cells);
+                let max_chatters = self.config.comic.max_chatters_per_cell;
+                state.push_message(comic_message, window_ms, max_cells, max_chatters);
                 state.dirty = true;
             }
         }
@@ -1441,6 +1463,62 @@ mod tests {
         assert_eq!(bot.avatar_for("777"), Some(normal.clone()));
         let reloaded = Config::load_or_create(&config_path).unwrap();
         assert_eq!(reloaded.avatar_for("777"), Some(normal.as_path()));
+
+        std::fs::remove_dir_all(dir).ok();
+    }
+
+    /// A cell stops accepting new speakers once it reaches the configured cap;
+    /// messages from speakers already in the cell still join.
+    #[test]
+    fn cells_limit_distinct_chatters() {
+        let dir = std::env::temp_dir().join(format!(
+            "comicbot-test-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        let config_path = dir.join("comicbot.toml");
+        let mut config = Config::load_or_create(&config_path).unwrap();
+        config.render_mode = crate::config::RenderMode::Off;
+        config.comic.max_chatters_per_cell = 2;
+        config.comic.cell_window_secs = 1.0;
+        let fonts = crate::fonts::Fonts::load(&config.fonts).unwrap();
+        let bot = Bot::new(config, fonts);
+        let (client, _outgoing) = crate::irc::IrcClient::for_test("salmon85");
+
+        let message = |id: &str, user: &str, timestamp_ms: i64| ChatMessage {
+            id: id.to_string(),
+            channel: "salmon85".to_string(),
+            user_id: user.to_string(),
+            login: user.to_string(),
+            display_name: user.to_string(),
+            text: "hello".to_string(),
+            color: Color::rgb(0, 173, 255),
+            badges: vec![],
+            is_mod: false,
+            is_sub: false,
+            timestamp_ms,
+            reply_to: None,
+        };
+
+        for (id, user, timestamp) in [
+            ("a", "alice", 0),
+            ("b", "bob", 100),
+            ("c", "alice", 200),
+            ("d", "carol", 300),
+        ] {
+            bot.on_chat(&message(id, user, timestamp), &client);
+        }
+
+        let state = bot.state.lock().unwrap();
+        assert_eq!(state.cells.len(), 2);
+        assert_eq!(state.cells[0].messages.len(), 3);
+        assert_eq!(state.cells[1].messages.len(), 1);
+        assert_eq!(state.cells[1].first_time_ms, 300);
+        drop(state);
 
         std::fs::remove_dir_all(dir).ok();
     }

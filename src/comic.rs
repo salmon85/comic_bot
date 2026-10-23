@@ -228,6 +228,18 @@ impl Geometry {
     }
 }
 
+/// Shorten a message to at most `max_chars` characters, ending with `...`.
+fn truncate_message(text: &str, max_chars: usize) -> String {
+    let max_chars = max_chars.max(3);
+    if text.chars().count() <= max_chars {
+        return text.to_string();
+    }
+    let keep = max_chars - 3;
+    let mut out: String = text.chars().take(keep).collect();
+    out.push_str("...");
+    out
+}
+
 /// Compute the position and size of every panel.
 fn layout(
     page: &ComicPage,
@@ -276,7 +288,8 @@ fn layout(
                 }
             };
 
-            let lines = wrap_text(&fonts.regular, config.font_size, &message.text, text_width);
+            let text = truncate_message(&message.text, config.max_message_chars);
+            let lines = wrap_text(&fonts.regular, config.font_size, &text, text_width);
             let text_h = lines.len() * body_metrics.line_height.ceil() as usize;
             let bubble_h = BUBBLE_PAD * 2 + name_h + text_h;
 
@@ -909,6 +922,16 @@ mod tests {
         assert_eq!(panels.len(), 6);
         assert_eq!(panels[0].cell, 7, "the newest cell is displayed first");
         assert_eq!(panels[5].cell, 2, "the oldest cells are left out");
+    }
+
+    #[test]
+    fn long_messages_are_truncated() {
+        assert_eq!(truncate_message("hello", 10), "hello");
+        assert_eq!(truncate_message("hello world", 8), "hello...");
+        let text = "é".repeat(20);
+        let cut = truncate_message(&text, 10);
+        assert_eq!(cut.chars().count(), 10);
+        assert!(cut.ends_with("..."));
     }
 
     #[test]

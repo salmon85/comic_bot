@@ -277,13 +277,18 @@ show_sidebar = true       # set to false for a page without the roster
 font_size = 17.0          # text inside the speech bubbles
 name_font_size = 16.0     # text of the caption boxes and names
 cell_window_secs = 1.0    # messages within this window share one cell
+max_chatters_per_cell = 4 # cap on distinct speakers in one cell
+max_message_chars = 200   # truncate longer messages with ...
 min_interval_secs = 1     # minimum delay between two automatic pages
 transparent_background = false
 show_header = true
 ```
 
 A cell collects every message that arrives within `cell_window_secs` of the
-first message of that cell. The page holds at most `columns * rows` cells;
+first message of that cell, up to `max_chatters_per_cell` different speakers.
+Messages from speakers already in the cell still join it; a new speaker starts
+another cell. Message text longer than `max_message_chars` is cut off with
+`...`. The page holds at most `columns * rows` cells;
 when a newer cell is created, the oldest cell rolls off. The newest cell is
 drawn in the top left corner. With `columns = 1`
 the page becomes a single vertical strip, `columns = 2` a two column strip.
