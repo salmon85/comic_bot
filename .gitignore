@@ -1,10 +1,9 @@
 /target
 /data
-/dataa
 /linux
 /windows
-/avatars/*
-/backgrounds/*
+/avatars/*.png
+/backgrounds/*.png
 # Contains the OAuth client secret and the stored token
 /comicbot.toml
 /prepare.sh
